@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Research App - Login</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 400px;
+            margin: 100px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h2 { text-align: center; color: #333; }
+        input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px 0;
+        }
+        button:hover { background-color: #0056b3; }
+        .message { margin: 10px 0; padding: 10px; border-radius: 5px; }
+        .success { background-color: #d4edda; color: #155724; }
+        .error { background-color: #f8d7da; color: #721c24; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>🔬 Research App</h2>
+        
+        <div id="loginForm">
+            <h3>Login</h3>
+            <input type="text" id="loginUsername" placeholder="Username" required>
+            <input type="password" id="loginPassword" placeholder="Password" required>
+            <button onclick="login()">Login</button>
+            <button onclick="showSignup()" style="background-color: #28a745;">Sign Up</button>
+        </div>
+
+        <div id="signupForm" style="display: none;">
+            <h3>Sign Up</h3>
+            <input type="text" id="signupUsername" placeholder="Username" required>
+            <input type="password" id="signupPassword" placeholder="Password" required>
+            <input type="email" id="signupEmail" placeholder="Email" required>
+            <input type="text" id="signupNom" placeholder="Last Name" required>
+            <input type="text" id="signupPrenom" placeholder="First Name" required>
+            <button onclick="signup()">Create Account</button>
+            <button onclick="showLogin()" style="background-color: #6c757d;">Back to Login</button>
+        </div>
+
+        <div id="dashboard" style="display: none;">
+            <h3>Welcome!</h3>
+            <p>You are successfully logged in!</p>
+            <button onclick="logout()">Logout</button>
+        </div>
+
+        <div id="message"></div>
+    </div>
+
+    <script>
+        function showMessage(text, isError = false) {
+            const msg = document.getElementById('message');
+            msg.textContent = text;
+            msg.className = 'message ' + (isError ? 'error' : 'success');
+        }
+
+        function showLogin() {
+            document.getElementById('loginForm').style.display = 'block';
+            document.getElementById('signupForm').style.display = 'none';
+            document.getElementById('dashboard').style.display = 'none';
+        }
+
+        function showSignup() {
+            document.getElementById('loginForm').style.display = 'none';
+            document.getElementById('signupForm').style.display = 'block';
+            document.getElementById('dashboard').style.display = 'none';
+        }
+
+        function showDashboard() {
+            document.getElementById('loginForm').style.display = 'none';
+            document.getElementById('signupForm').style.display = 'none';
+            document.getElementById('dashboard').style.display = 'block';
+        }
+
+        function login() {
+            const username = document.getElementById('loginUsername').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            if (!username || !password) {
+                showMessage('Please fill all fields', true);
+                return;
+            }
+
+            // For now, simple demo login
+            if (username === 'admin' && password === 'admin') {
+                showMessage('Login successful!');
+                setTimeout(showDashboard, 1000);
+            } else {
+                showMessage('Invalid credentials', true);
+            }
+        }
+
+        function signup() {
+            const username = document.getElementById('signupUsername').value;
+            const password = document.getElementById('signupPassword').value;
+            const email = document.getElementById('signupEmail').value;
+            
+            if (!username || !password || !email) {
+                showMessage('Please fill all required fields', true);
+                return;
+            }
+
+            showMessage('Account created successfully!');
+            setTimeout(showLogin, 1500);
+        }
+
+        function logout() {
+            showMessage('Logged out successfully!');
+            setTimeout(showLogin, 1000);
+        }
+    </script>
+</body>
+</html>
