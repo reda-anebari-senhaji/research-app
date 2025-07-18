@@ -6,7 +6,6 @@ public class AuthResponse {
     private String role;
     private String message;
     
-    // Constructeurs
     public AuthResponse() {}
     
     public AuthResponse(String token, String username, String role, String message) {

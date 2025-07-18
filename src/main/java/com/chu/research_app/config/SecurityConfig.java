@@ -38,6 +38,9 @@ public class SecurityConfig {
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers("/api/public/**").permitAll()
                 .requestMatchers("/", "/index.html", "/static/**", "/css/**", "/js/**", "/images/**").permitAll()
+                .requestMatchers("/api/admin/**").hasRole("ADMINISTRATEUR")
+                .requestMatchers("/api/chercheur/**").hasAnyRole("ADMINISTRATEUR", "CHERCHEUR")
+                .requestMatchers("/api/user/**").hasAnyRole("ADMINISTRATEUR", "CHERCHEUR", "USER")
                 .anyRequest().authenticated();
         
         return http.build();

@@ -2,8 +2,12 @@ package com.chu.research_app.service.impl;
 
 import com.chu.research_app.config.CustomUserDetails;
 import com.chu.research_app.dto.request.LoginRequest;
+import com.chu.research_app.dto.request.SignupRequest;
 import com.chu.research_app.dto.response.AuthResponse;
+import com.chu.research_app.entity.User;
+import com.chu.research_app.repository.UserRepository;
 import com.chu.research_app.service.AuthService;
+import com.chu.research_app.util.Role;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -11,6 +15,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -18,6 +23,12 @@ public class AuthServiceImpl implements AuthService {
     
     @Autowired
     private AuthenticationManager authenticationManager;
+    
+    @Autowired
+    private UserRepository userRepository;
+    
+    @Autowired
+    private PasswordEncoder passwordEncoder;
     
     @Override
     public ResponseEntity<?> login(LoginRequest loginRequest) {
@@ -46,6 +57,34 @@ public class AuthServiceImpl implements AuthService {
             return ResponseEntity.badRequest().body("Invalid credentials");
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Login failed: " + e.getMessage());
+        }
+    }
+    
+    @Override
+    public ResponseEntity<?> signup(SignupRequest signupRequest) {
+        try {
+            // Vérifier si l'utilisateur existe déjà
+            if (userRepository.findByUsername(signupRequest.getUsername()).isPresent()) {
+                return ResponseEntity.badRequest().body("Username already exists");
+            }
+            
+            // Créer un nouvel utilisateur
+            User user = new User();
+            user.setUsername(signupRequest.getUsername());
+            user.setPassword(passwordEncoder.encode(signupRequest.getPassword()));
+            user.setEmail(signupRequest.getEmail());
+            user.setFirstName(signupRequest.getFirstName());
+            user.setLastName(signupRequest.getLastName());
+            user.setRole(signupRequest.getRole() != null ? signupRequest.getRole() : Role.USER);
+            user.setEnabled(true);
+            
+            // Sauvegarder l'utilisateur
+            User savedUser = userRepository.save(user);
+            
+            return ResponseEntity.ok("Account created successfully! User ID: " + savedUser.getId());
+            
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Signup failed: " + e.getMessage());
         }
     }
 }
