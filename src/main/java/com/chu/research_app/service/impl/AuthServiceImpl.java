@@ -61,30 +61,44 @@ public class AuthServiceImpl implements AuthService {
     }
     
     @Override
-    public ResponseEntity<?> signup(SignupRequest signupRequest) {
-        try {
-            // Vérifier si l'utilisateur existe déjà
-            if (userRepository.findByUsername(signupRequest.getUsername()).isPresent()) {
-                return ResponseEntity.badRequest().body("Username already exists");
-            }
-            
-            // Créer un nouvel utilisateur
-            User user = new User();
-            user.setUsername(signupRequest.getUsername());
-            user.setPassword(passwordEncoder.encode(signupRequest.getPassword()));
-            user.setEmail(signupRequest.getEmail());
-            user.setFirstName(signupRequest.getFirstName());
-            user.setLastName(signupRequest.getLastName());
-            user.setRole(signupRequest.getRole() != null ? signupRequest.getRole() : Role.USER);
-            user.setEnabled(true);
-            
-            // Sauvegarder l'utilisateur
-            User savedUser = userRepository.save(user);
-            
-            return ResponseEntity.ok("Account created successfully! User ID: " + savedUser.getId());
-            
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Signup failed: " + e.getMessage());
+    public User signup(SignupRequest request) {
+        // Vérifier si l'utilisateur existe déjà
+        if (userRepository.findByUsername(request.getUsername()).isPresent()) {
+            throw new IllegalArgumentException("Username already exists");
         }
+        
+        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
+            throw new IllegalArgumentException("Email already exists");
+        }
+        
+        // Debug : afficher les données reçues
+        System.out.println("🔍 DEBUG - SignupRequest reçu:");
+        System.out.println("Username: " + request.getUsername());
+        System.out.println("Role string: '" + request.getRole() + "'");
+        System.out.println("Role length: " + (request.getRole() != null ? request.getRole().length() : "null"));
+        
+        // Convertir le rôle
+        Role userRole;
+        try {
+            userRole = Role.fromString(request.getRole());  // ✅ request.getRole() est un String
+            System.out.println("✅ Role converti: " + userRole);
+        } catch (Exception e) {
+            System.out.println("❌ Erreur conversion role: " + e.getMessage());
+            throw new IllegalArgumentException("Invalid role: " + request.getRole());
+        }
+        
+        // Créer l'utilisateur
+        User user = new User();
+        user.setUsername(request.getUsername());
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setEmail(request.getEmail());
+        user.setFirstName(request.getFirstName());
+        user.setLastName(request.getLastName());
+        user.setRole(userRole);
+        
+        User savedUser = userRepository.save(user);
+        System.out.println("✅ Utilisateur créé avec l'ID: " + savedUser.getId());
+        
+        return savedUser;
     }
 }
